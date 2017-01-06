@@ -13,6 +13,9 @@ input.addEventListener("keyup", function(e) {
 
 button.addEventListener("click", function() {
 
+  button.setAttribute("disabled", "disabled");
+  button.textContent = "Loading...";
+
   // Remove previous results after every search
   while (resultsarea.firstChild) {
     resultsarea.removeChild(resultsarea.firstChild);
@@ -29,38 +32,52 @@ button.addEventListener("click", function() {
   // AJAX Callback function
   function callback(data) {
 
-    // Heading and unordered list reset after every search
-    let h2 = document.createElement('h2');
-    let ul = document.createElement('ul');
+    function filterString(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
 
-    // JSON data arrays stored in variables
-    let searchResults = data[1];
-    let searchDescriptions = data[2];
-    let hrefs = data[3];
+    button.removeAttribute("disabled");
+    button.textContent = "Search";
+    resultsarea.style.backgroundColor = "#D3D3D3";
 
-    // Append heading and unordered list after search is complete
-    h2.textContent = "Wikipedia Entries For " + input.value;
-    resultsarea.appendChild(h2);
-    resultsarea.appendChild(ul);
+    if(data[1].length < 1) {
+      let h2 = document.createElement('h2');
+      h2.textContent = "There are no wikipedia entries for " + filterString(input.value) + "!";
+      resultsarea.appendChild(h2);
+    } else {
+      // Heading and unordered list reset after every search
+      let h2 = document.createElement('h2');
+      let ul = document.createElement('ul');
 
-    // Iterate through results along with their corresponding links and display them on the screen
-    for(let i = 0; i < searchResults.length; i++) {
-      // Create new element for every iteration
-      let entry = searchResults[i];
-      let li = document.createElement('li');
-      let anchor = document.createElement('a');
+      // JSON data arrays stored in variables
+      let searchResults = data[1];
+      let searchDescriptions = data[2];
+      let hrefs = data[3];
 
-      //Set Attributes and Text Content for each list item
-      anchor.setAttribute("href", hrefs[i]);
-      anchor.setAttribute("target", "_blank");
-      anchor.textContent = searchResults[i];
+      // Append heading and unordered list after search is complete
+      h2.textContent = "Wikipedia Entries For " + "''" + filterString(input.value) + "''";
+      resultsarea.appendChild(h2);
+      resultsarea.appendChild(ul);
 
-      //Append list items
-      li.appendChild(anchor);
-      ul.appendChild(li);
+      // Iterate through results along with their corresponding links and display them on the screen
+      for(let i = 0; i < searchResults.length; i++) {
+        // Create new element for every iteration
+        let entry = searchResults[i];
+        let li = document.createElement('li');
+        let anchor = document.createElement('a');
+
+        //Set Attributes and Text Content for each list item
+        anchor.setAttribute("href", hrefs[i]);
+        anchor.setAttribute("target", "_blank");
+        anchor.textContent = searchResults[i];
+
+        //Append list items
+        li.appendChild(anchor);
+        ul.appendChild(li);
+      }
     }
   }
 
   // Get JSON from Wikipedia API
-  $.getJSON(url, data, callback);
+  $.getJSON(url, data, callback)
 });

@@ -1,1 +1,34 @@
+body {
+  font-family: Segoe UI Light;
+  font-size: 20px;
+}
 
+.container {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.resultsarea {
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+li {
+  margin: 20px 0;
+  list-style: none;
+  transition: all 5s ease;
+}
+
+a {
+  transition: all 1.5s ease;
+}
+
+a:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width:500px) {
+  .container {
+    width: 70%;
+  }
+}
