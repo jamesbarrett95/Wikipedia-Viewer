@@ -1,4 +1,7 @@
-const button = document.querySelector("button");
+
+const button = document.getElementsByTagName("button");
+const searchButton = document.getElementById("searchButton");
+const randomButton = document.getElementById("randomButton")
 const input = document.querySelector("input");
 const container = document.getElementById("container");
 const resultsarea = document.getElementById("resultsarea");
@@ -7,22 +10,27 @@ const resultsarea = document.getElementById("resultsarea");
 input.addEventListener("keyup", function(e) {
   e.preventDefault();
   if(e.keyCode == 13) {
-    button.click();
+    searchButton.click();
   }
 });
 
-button.addEventListener("click", function() {
+randomButton.addEventListener("click", function() {
+  const randomWikiArticle = "https://en.wikipedia.org/wiki/Special:Random";
+  window.open(randomWikiArticle);
+});
+
+searchButton.addEventListener("click", function() {
   const ul = document.createElement('ul');
   const h2 = document.createElement('h2');
 
-  function determineButtonState(button) {
-    const buttonText = button.textContent;
+  function determineButtonState(searchButton) {
+    const buttonText = searchButton.textContent;
     if(buttonText == "Search") {
-      button.setAttribute("disabled", "disabled");
-      button.textContent = "Loading...";
+      searchButton.setAttribute("disabled", "disabled");
+      searchButton.textContent = "Loading...";
     } else {
-      button.removeAttribute("disabled");
-      button.textContent = "Search";
+      searchButton.removeAttribute("disabled");
+      searchButton.textContent = "Search";
     }
   }
 
@@ -35,7 +43,7 @@ button.addEventListener("click", function() {
     document.body.style.backgroundColor = color;
   }
 
-  determineButtonState(button);
+  determineButtonState(searchButton);
   getRandomBackgroundColor();
 
   // Remove previous results after every search
@@ -59,8 +67,13 @@ button.addEventListener("click", function() {
     }
 
     function showErrorMessage() {
-      h2.textContent = "There are no wikipedia entries for " + filterString(input.value) + "!";
-      resultsarea.appendChild(h2);
+      if(input.value === "") {
+        h2.textContent = "Please enter a search term before submitting!";
+        resultsarea.appendChild(h2);
+      } else {
+        h2.textContent = "There are no wikipedia entries for " + filterString(input.value) + "!";
+        resultsarea.appendChild(h2);
+      }
     }
 
     function createListElement(wikiEntry, wikiLink) {
@@ -77,28 +90,32 @@ button.addEventListener("click", function() {
       ul.appendChild(li);
     }
 
-    determineButtonState(button);
+    determineButtonState(searchButton);
 
-    if(data[1].length < 1) {
-      showErrorMessage();
-    } else {
-      // JSON data arrays stored in variables
-      let searchResults = data[1];
-      let searchDescriptions = data[2];
-      let correspondingLinks = data[3];
+    if(input.value !== "") {
+      if(data[1].length < 1) {
+        showErrorMessage();
+      } else {
+        // JSON data arrays stored in variables
+        let searchResults = data[1];
+        let searchDescriptions = data[2];
+        let correspondingLinks = data[3];
 
-      // Append heading and unordered list after search is complete
-      h2.textContent = "Wikipedia Entries For " + "''" + filterString(input.value) + "''";
-      resultsarea.appendChild(h2);
-      resultsarea.appendChild(ul);
+        // Append heading and unordered list after search is complete
+        h2.textContent = "Wikipedia Entries For " + "''" + filterString(input.value) + "''";
+        resultsarea.appendChild(h2);
+        resultsarea.appendChild(ul);
 
-      // Iterate through results along with their corresponding links and display them on the screen
-      for(let i = 0; i < searchResults.length; i++) {
-        // Create new element for every iteration
-        let wikiEntry = searchResults[i];
-        let wikiLink = correspondingLinks[i];
-        createListElement(wikiEntry, wikiLink);
+        // Iterate through results along with their corresponding links and display them on the screen
+        for(let i = 0; i < searchResults.length; i++) {
+          // Create new element for every iteration
+          let wikiEntry = searchResults[i];
+          let wikiLink = correspondingLinks[i];
+          createListElement(wikiEntry, wikiLink);
+        }
       }
+    } else {
+      showErrorMessage();
     }
   }
 
