@@ -12,9 +12,31 @@ input.addEventListener("keyup", function(e) {
 });
 
 button.addEventListener("click", function() {
+  const ul = document.createElement('ul');
+  const h2 = document.createElement('h2');
 
-  button.setAttribute("disabled", "disabled");
-  button.textContent = "Loading...";
+  function determineButtonState(button) {
+    const buttonText = button.textContent;
+    if(buttonText == "Search") {
+      button.setAttribute("disabled", "disabled");
+      button.textContent = "Loading...";
+    } else {
+      button.removeAttribute("disabled");
+      button.textContent = "Search";
+    }
+  }
+
+  function getRandomBackgroundColor() {
+    var letters = 'BCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+      color += letters[Math.floor(Math.random() * letters.length)];
+    }
+    document.body.style.backgroundColor = color;
+  }
+
+  determineButtonState(button);
+  getRandomBackgroundColor();
 
   // Remove previous results after every search
   while (resultsarea.firstChild) {
@@ -36,23 +58,34 @@ button.addEventListener("click", function() {
       return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     }
 
-    button.removeAttribute("disabled");
-    button.textContent = "Search";
-    resultsarea.style.backgroundColor = "#D3D3D3";
-
-    if(data[1].length < 1) {
-      let h2 = document.createElement('h2');
+    function showErrorMessage() {
       h2.textContent = "There are no wikipedia entries for " + filterString(input.value) + "!";
       resultsarea.appendChild(h2);
-    } else {
-      // Heading and unordered list reset after every search
-      let h2 = document.createElement('h2');
-      let ul = document.createElement('ul');
+    }
 
+    function createListElement(wikiEntry, wikiLink) {
+      let li = document.createElement('li');
+      let anchor = document.createElement('a');
+
+      //Set Attributes and Text Content for each list item
+      anchor.setAttribute("href", wikiLink);
+      anchor.setAttribute("target", "_blank");
+      anchor.textContent = wikiEntry;
+
+      //Append list items
+      li.appendChild(anchor);
+      ul.appendChild(li);
+    }
+
+    determineButtonState(button);
+
+    if(data[1].length < 1) {
+      showErrorMessage();
+    } else {
       // JSON data arrays stored in variables
       let searchResults = data[1];
       let searchDescriptions = data[2];
-      let hrefs = data[3];
+      let correspondingLinks = data[3];
 
       // Append heading and unordered list after search is complete
       h2.textContent = "Wikipedia Entries For " + "''" + filterString(input.value) + "''";
@@ -62,18 +95,9 @@ button.addEventListener("click", function() {
       // Iterate through results along with their corresponding links and display them on the screen
       for(let i = 0; i < searchResults.length; i++) {
         // Create new element for every iteration
-        let entry = searchResults[i];
-        let li = document.createElement('li');
-        let anchor = document.createElement('a');
-
-        //Set Attributes and Text Content for each list item
-        anchor.setAttribute("href", hrefs[i]);
-        anchor.setAttribute("target", "_blank");
-        anchor.textContent = searchResults[i];
-
-        //Append list items
-        li.appendChild(anchor);
-        ul.appendChild(li);
+        let wikiEntry = searchResults[i];
+        let wikiLink = correspondingLinks[i];
+        createListElement(wikiEntry, wikiLink);
       }
     }
   }
